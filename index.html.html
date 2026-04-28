@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cardio Define">
+<meta name="theme-color" content="#080a0e">
+<title>Cardio Define</title>
+<link rel="manifest" id="pwa-manifest">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080a0e; --surface:#0f1218; --card:#141820; --border:#ffffff12;
+  --accent:#00e5ff; --accent2:#ff3d71; --accent3:#a3ff5a; --yellow:#ffd43b;
+  --muted:#667086; --text:#a7b2c8; --white:#e8edf5;
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  background:var(--bg); color:var(--text); font-family:'Space Mono',monospace;
+  min-height:100vh; padding:calc(20px + var(--sat)) 16px calc(32px + var(--sab));
+  background-image:
+  radial-gradient(ellipse 60% 40% at 85% 5%, #ff3d7112 0%, transparent 60%),
+  radial-gradient(ellipse 40% 35% at 15% 80%, #00e5ff0d 0%, transparent 60%);
+}
+.container{max-width:760px;margin:0 auto}
+.header{margin-bottom:24px}
+.eyebrow{font-size:8px;letter-spacing:5px;color:var(--accent2);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.eyebrow:after{content:'';height:1px;flex:1;background:linear-gradient(to right,#ff3d7160,transparent)}
+h1{font-family:'Black Han Sans',sans-serif;font-size:clamp(44px,13vw,76px);line-height:.9;color:var(--white);letter-spacing:-1px}
+h1 span{color:var(--accent2)}
+.sub{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;line-height:1.8;margin-top:12px}
+.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+.stat-val{font-family:'Black Han Sans',sans-serif;color:var(--white);font-size:28px;line-height:1}
+.stat-lbl{font-size:7px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-top:7px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:14px;overflow:hidden}
+.card.hot{background:#ff3d7109;border-color:#ff3d7130}
+.card-title{font-family:'Black Han Sans',sans-serif;color:var(--accent2);font-size:26px;letter-spacing:1px}
+.card-sub{font-size:10px;color:var(--muted);line-height:1.75;margin-top:6px}
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.mode-btn,.control-btn{
+  font-family:'Space Mono',monospace;border:1px solid var(--border);border-radius:12px;
+  background:var(--surface);color:var(--text);padding:12px;cursor:pointer;font-weight:700
+}
+.mode-btn.active{background:#ff3d7120;border-color:#ff3d7180;color:var(--white)}
+.protocol{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.step{display:grid;grid-template-columns:32px 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px}
+.step-num{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--accent2)}
+.step-name{font-size:11px;color:var(--white);font-weight:700;line-height:1.35}
+.step-detail{font-size:8px;color:var(--muted);margin-top:3px;line-height:1.45}
+.step-time{font-size:10px;color:var(--accent2);font-weight:700;white-space:nowrap}
+.timer-card{position:relative;background:linear-gradient(180deg,#171b24,#0f1218);border:1px solid #ff3d7130;border-radius:24px;padding:22px;margin-bottom:14px}
+.phase-tag{display:inline-flex;align-items:center;gap:7px;background:#ff3d7118;border:1px solid #ff3d7145;color:var(--accent2);border-radius:99px;padding:7px 11px;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.timer{font-family:'Black Han Sans',sans-serif;font-size:clamp(72px,20vw,132px);line-height:.9;color:var(--white);letter-spacing:-3px;text-align:center;margin:20px 0 8px}
+.phase-name{text-align:center;font-family:'Black Han Sans',sans-serif;color:var(--accent2);font-size:30px;letter-spacing:1px}
+.next{text-align:center;font-size:10px;color:var(--muted);margin-top:8px}
+.progress-wrap{height:11px;background:#ffffff10;border-radius:99px;overflow:hidden;margin-top:20px}
+.progress{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--yellow));border-radius:99px;transition:width .2s linear}
+.progress-label{display:flex;justify-content:space-between;font-size:8px;color:var(--muted);margin-top:8px;text-transform:uppercase;letter-spacing:1px}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.control-btn{font-size:12px;padding:15px}
+.control-btn.primary{background:var(--accent2);border-color:var(--accent2);color:#fff}
+.control-btn.stop{background:#ffffff08;color:var(--muted)}
+.control-btn:disabled{opacity:.35;cursor:not-allowed}
+.alert{
+  display:none;position:fixed;left:16px;right:16px;bottom:calc(16px + var(--sab));z-index:99;
+  background:var(--accent2);color:#fff;border-radius:18px;padding:18px;text-align:center;
+  font-family:'Black Han Sans',sans-serif;font-size:26px;letter-spacing:1px;box-shadow:0 20px 60px #0008
+}
+.alert.show{display:block;animation:pop .45s ease}
+@keyframes pop{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.toggle{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.toggle label{font-size:10px;color:var(--white);font-weight:700}
+.toggle small{display:block;color:var(--muted);font-size:8px;margin-top:3px}
+input[type="checkbox"]{width:22px;height:22px;accent-color:#ff3d71}
+.history-item{display:grid;grid-template-columns:1fr auto;gap:8px;border-bottom:1px solid var(--border);padding:11px 0;font-size:10px}
+.history-item:last-child{border-bottom:none}
+.history-main{color:var(--white);font-weight:700}
+.history-sub{color:var(--muted);font-size:8px;margin-top:4px;line-height:1.4}
+.clear{font-size:9px;color:var(--muted);background:transparent;border:0;text-decoration:underline;margin-top:10px}
+@media(max-width:520px){
+  .status-grid{grid-template-columns:repeat(3,1fr)}
+  .stat{padding:12px 8px}
+  .stat-val{font-size:22px}
+  .mode-row,.options{grid-template-columns:1fr}
+  .step{grid-template-columns:28px 1fr}
+  .step-time{grid-column:2}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="eyebrow">🔥 Cardio automático</div>
+    <h1>CARDIO<br><span>DEFINE</span></h1>
+    <div class="sub">HIIT 30 min · Ao ar livre ou esteira · Aviso por som, vibração e tela</div>
+  </div>
+
+  <div class="status-grid">
+    <div class="stat"><div class="stat-val" id="totalTime">30:00</div><div class="stat-lbl">tempo total</div></div>
+    <div class="stat"><div class="stat-val" id="cycleStat">0/8</div><div class="stat-lbl">ciclos</div></div>
+    <div class="stat"><div class="stat-val" id="distanceStat">0.00</div><div class="stat-lbl">km</div></div>
+  </div>
+
+  <div class="timer-card">
+    <div class="phase-tag" id="modeTag">AO AR LIVRE</div>
+    <div class="timer" id="timer">30:00</div>
+    <div class="phase-name" id="phaseName">PRONTO</div>
+    <div class="next" id="nextPhase">Toque em iniciar para começar o aquecimento.</div>
+    <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+    <div class="progress-label"><span id="elapsedLabel">0:00</span><span id="remainingLabel">30:00 restantes</span></div>
+
+    <div class="controls">
+      <button class="control-btn primary" id="startBtn">INICIAR</button>
+      <button class="control-btn" id="pauseBtn" disabled>PAUSAR</button>
+      <button class="control-btn" id="resumeBtn" disabled>RETOMAR</button>
+      <button class="control-btn stop" id="finishBtn" disabled>FINALIZAR</button>
+    </div>
+  </div>
+
+  <div class="card hot">
+    <div class="card-title">🔥 HIIT 30 MIN</div>
+    <div class="card-sub">O app conduz o treino sozinho: caminhada, tiros, trote e desaquecimento. Use o esforço do corpo ao ar livre ou velocidade na esteira.</div>
+
+    <div class="mode-row">
+      <button class="mode-btn active" id="outdoorBtn">🌴 Ao ar livre</button>
+      <button class="mode-btn" id="treadmillBtn">🏃 Esteira</button>
+    </div>
+
+    <div class="protocol" id="protocolList"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--white);font-size:22px">⚙️ AVISOS</div>
+    <div class="options" style="margin-top:12px">
+      <div class="toggle"><div><label>Som / voz</label><small>fala a próxima ação</small></div><input type="checkbox" id="voiceToggle" checked></div>
+      <div class="toggle"><div><label>Vibração</label><small>funciona em celulares compatíveis</small></div><input type="checkbox" id="vibeToggle" checked></div>
+      <div class="toggle"><div><label>GPS</label><small>calcula distância ao ar livre</small></div><input type="checkbox" id="gpsToggle" checked></div>
+      <div class="toggle"><div><label>Alerta antes da troca</label><small>avisa faltando 5 segundos</small></div><input type="checkbox" id="prepToggle" checked></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--white);font-size:22px">📈 HISTÓRICO</div>
+    <div id="history"></div>
+    <button class="clear" onclick="clearHistory()">limpar histórico</button>
+  </div>
+</div>
+
+<div class="alert" id="alertBox">CORRA AGORA</div>
+
+<script>
+const segments = [
+  {type:'warmup', label:'Aquecimento', action:'CAMINHE LEVE', duration:300, speak:'Comece a caminhar leve.', detailOutdoor:'RPE 3–4 · respiração confortável', detailTreadmill:'Caminhada leve · 4 a 5 km/h'},
+  ...Array.from({length:8}, (_,i)=>[
+    {type:'run', cycle:i+1, label:'Tiro ' + (i+1), action:'CORRA AGORA', duration:40, speak:'Corra agora.', detailOutdoor:'RPE 8–9 · forte, quase sem falar', detailTreadmill:'Corrida intensa · 8 a 9 km/h'},
+    {type:'walk', cycle:i+1, label:'Recuperação ' + (i+1), action:'ANDE RÁPIDO', duration:80, speak:'Ande rápido.', detailOutdoor:'RPE 5–6 · recuperação ativa', detailTreadmill:'Caminhada rápida · 5 km/h'}
+  ]).flat(),
+  {type:'steady', label:'Steady state', action:'TROTE LEVE', duration:420, speak:'Mantenha o trote leve.', detailOutdoor:'RPE 6–7 · constante e sustentável', detailTreadmill:'Trote leve constante'},
+  {type:'cooldown', label:'Desaquecimento', action:'CAMINHE SUAVE', duration:120, speak:'Desacelere. Caminhada suave.', detailOutdoor:'RPE 3 · soltar o corpo', detailTreadmill:'Caminhada suave'}
+];
+const totalDuration = segments.reduce((s,x)=>s+x.duration,0);
+
+let mode = 'outdoor';
+let running = false;
+let paused = false;
+let startedAt = null;
+let pauseStarted = null;
+let pausedMs = 0;
+let currentIndex = 0;
+let segmentStartedAt = null;
+let intervalId = null;
+let prepSpoken = false;
+let distanceKm = 0;
+let lastPos = null;
+let watchId = null;
+
+const $ = id => document.getElementById(id);
+const fmt = sec => {
+  sec = Math.max(0, Math.ceil(sec));
+  const m = Math.floor(sec/60);
+  const s = sec % 60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+};
+
+function buildProtocol(){
+  const groups = [
+    ['1','Aquecimento — caminhada leve','5 min'],
+    ['2','Corrida intensa × caminhada rápida — repetir 8 vezes','40s / 80s · 16 min'],
+    ['3','Steady state — trote leve constante','7 min'],
+    ['4','Desaquecimento — caminhada suave','2 min']
+  ];
+  $('protocolList').innerHTML = groups.map(g => `
+    <div class="step">
+      <div class="step-num">${g[0]}</div>
+      <div>
+        <div class="step-name">${g[1]}</div>
+        <div class="step-detail">${mode === 'outdoor' ? 'Ao ar livre: use percepção de esforço' : 'Esteira: use velocidade como referência'}</div>
+      </div>
+      <div class="step-time">${g[2]}</div>
+    </div>`).join('');
+}
+buildProtocol();
+
+function setMode(nextMode){
+  if (running) return;
+  mode = nextMode;
+  $('outdoorBtn').classList.toggle('active', mode === 'outdoor');
+  $('treadmillBtn').classList.toggle('active', mode === 'treadmill');
+  $('modeTag').textContent = mode === 'outdoor' ? 'AO AR LIVRE' : 'ESTEIRA';
+  buildProtocol();
+}
+$('outdoorBtn').onclick = () => setMode('outdoor');
+$('treadmillBtn').onclick = () => setMode('treadmill');
+
+function announce(text, urgent=false){
+  $('alertBox').textContent = text;
+  $('alertBox').classList.add('show');
+  clearTimeout(window.alertTimer);
+  window.alertTimer = setTimeout(()=>$('alertBox').classList.remove('show'), urgent ? 2500 : 1700);
+
+  if ($('vibeToggle').checked && navigator.vibrate) navigator.vibrate(urgent ? [220,80,220] : 160);
+
+  if ($('voiceToggle').checked && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.toLowerCase());
+    u.lang = 'pt-BR';
+    u.rate = 1.02;
+    u.pitch = 1;
+    window.speechSynthesis.speak(u);
+  }
+}
+
+function startGPS(){
+  if (mode !== 'outdoor' || !$('gpsToggle').checked || !navigator.geolocation) return;
+  watchId = navigator.geolocation.watchPosition(pos => {
+    const {latitude, longitude} = pos.coords;
+    if (lastPos) distanceKm += haversine(lastPos.lat, lastPos.lon, latitude, longitude);
+    lastPos = {lat:latitude, lon:longitude};
+    $('distanceStat').textContent = distanceKm.toFixed(2);
+  }, () => {}, {enableHighAccuracy:true, maximumAge:1000, timeout:8000});
+}
+function stopGPS(){
+  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+  watchId = null;
+}
+function haversine(lat1, lon1, lat2, lon2){
+  const R = 6371;
+  const dLat = (lat2-lat1)*Math.PI/180;
+  const dLon = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function getElapsed(){
+  if (!running && !paused) return 0;
+  const now = paused ? pauseStarted : Date.now();
+  return Math.floor((now - startedAt - pausedMs)/1000);
+}
+function findSegment(elapsed){
+  let acc = 0;
+  for (let i=0;i<segments.length;i++){
+    if (elapsed < acc + segments[i].duration) return {index:i, segment:segments[i], segmentElapsed:elapsed-acc, segmentStart:acc};
+    acc += segments[i].duration;
+  }
+  return {index:segments.length-1, segment:segments[segments.length-1], segmentElapsed:segments[segments.length-1].duration, segmentStart:totalDuration - segments[segments.length-1].duration};
+}
+
+function tick(){
+  const elapsed = getElapsed();
+  if (elapsed >= totalDuration) return finish(true);
+
+  const info = findSegment(elapsed);
+  const seg = info.segment;
+  const segRemaining = seg.duration - info.segmentElapsed;
+
+  if (info.index !== currentIndex) {
+    currentIndex = info.index;
+    prepSpoken = false;
+    announce(seg.speak, true);
+  }
+
+  if ($('prepToggle').checked && segRemaining <= 5 && segRemaining > 4 && !prepSpoken) {
+    prepSpoken = true;
+    const next = segments[currentIndex + 1];
+    if (next) announce('Prepare-se: ' + next.action.toLowerCase(), false);
+  }
+
+  $('timer').textContent = fmt(totalDuration - elapsed);
+  $('phaseName').textContent = seg.action;
+  const next = segments[currentIndex + 1];
+  $('nextPhase').textContent = next
+    ? `Agora: ${seg.label} · Próximo: ${next.action} · ${fmt(segRemaining)}`
+    : `Última fase · ${fmt(segRemaining)}`;
+  $('progress').style.width = `${(elapsed / totalDuration) * 100}%`;
+  $('elapsedLabel').textContent = fmt(elapsed);
+  $('remainingLabel').textContent = `${fmt(totalDuration - elapsed)} restantes`;
+  $('totalTime').textContent = fmt(totalDuration - elapsed);
+  $('cycleStat').textContent = seg.cycle ? `${seg.cycle}/8` : (elapsed > 300 + 16*60 ? '8/8' : '0/8');
+}
+
+function start(){
+  running = true; paused = false; startedAt = Date.now(); pausedMs = 0; currentIndex = 0; prepSpoken = false; distanceKm = 0; lastPos = null;
+  $('startBtn').disabled = true; $('pauseBtn').disabled = false; $('resumeBtn').disabled = true; $('finishBtn').disabled = false;
+  announce('Comece a caminhar leve.', true);
+  startGPS();
+  tick();
+  intervalId = setInterval(tick, 250);
+}
+function pause(){
+  if (!running || paused) return;
+  paused = true; pauseStarted = Date.now();
+  clearInterval(intervalId); intervalId = null;
+  $('pauseBtn').disabled = true; $('resumeBtn').disabled = false;
+  announce('Treino pausado.');
+}
+function resume(){
+  if (!paused) return;
+  pausedMs += Date.now() - pauseStarted;
+  paused = false; pauseStarted = null;
+  $('pauseBtn').disabled = false; $('resumeBtn').disabled = true;
+  announce('Treino retomado.');
+  tick();
+  intervalId = setInterval(tick, 250);
+}
+function finish(auto=false){
+  const elapsed = Math.min(getElapsed(), totalDuration);
+  running = false; paused = false;
+  clearInterval(intervalId); intervalId = null;
+  stopGPS();
+  $('startBtn').disabled = false; $('pauseBtn').disabled = true; $('resumeBtn').disabled = true; $('finishBtn').disabled = true;
+  $('timer').textContent = auto ? '0:00' : fmt(totalDuration - elapsed);
+  $('phaseName').textContent = auto ? 'FINALIZADO' : 'ENCERRADO';
+  $('nextPhase').textContent = auto ? 'Treino completo. Bom trabalho.' : 'Treino encerrado manualmente.';
+  $('progress').style.width = `${(elapsed / totalDuration) * 100}%`;
+  announce(auto ? 'Treino finalizado.' : 'Treino encerrado.', true);
+  saveHistory(elapsed, distanceKm, auto);
+}
+
+$('startBtn').onclick = start;
+$('pauseBtn').onclick = pause;
+$('resumeBtn').onclick = resume;
+$('finishBtn').onclick = () => finish(false);
+
+function saveHistory(elapsed, km, complete){
+  const data = JSON.parse(localStorage.getItem('cardioHistory') || '[]');
+  data.unshift({
+    date:new Date().toISOString(),
+    mode,
+    elapsed,
+    km:Number(km.toFixed(2)),
+    complete
+  });
+  localStorage.setItem('cardioHistory', JSON.stringify(data.slice(0,20)));
+  renderHistory();
+}
+function renderHistory(){
+  const data = JSON.parse(localStorage.getItem('cardioHistory') || '[]');
+  if (!data.length){
+    $('history').innerHTML = '<div class="history-sub" style="padding:12px 0">Nenhum treino registrado ainda.</div>';
+    return;
+  }
+  $('history').innerHTML = data.map(item => {
+    const d = new Date(item.date);
+    return `<div class="history-item">
+      <div>
+        <div class="history-main">${item.complete ? 'HIIT completo' : 'HIIT parcial'} · ${item.mode === 'outdoor' ? 'ao ar livre' : 'esteira'}</div>
+        <div class="history-sub">${d.toLocaleDateString('pt-BR')} · ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})} · ${fmt(item.elapsed)} · ${item.km.toFixed(2)} km</div>
+      </div>
+      <div class="history-main">${item.complete ? '✓' : '—'}</div>
+    </div>`;
+  }).join('');
+}
+function clearHistory(){
+  localStorage.removeItem('cardioHistory');
+  renderHistory();
+}
+renderHistory();
+
+// PWA simples
+function makeIcon(size){
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const x = c.getContext('2d');
+  x.fillStyle = '#080a0e'; x.fillRect(0,0,size,size);
+  x.fillStyle = '#ff3d71'; x.font = `bold ${size*.42}px sans-serif`; x.textAlign='center'; x.textBaseline='middle'; x.fillText('HIIT', size/2, size*.48);
+  x.fillStyle = '#ffffff66'; x.font = `${size*.1}px sans-serif`; x.fillText('DEFINE', size/2, size*.72);
+  return c.toDataURL('image/png');
+}
+const manifest = {
+  name:'Cardio Define', short_name:'Cardio', start_url:'.', display:'standalone',
+  background_color:'#080a0e', theme_color:'#080a0e', orientation:'portrait',
+  icons:[{src:makeIcon(192),sizes:'192x192',type:'image/png'},{src:makeIcon(512),sizes:'512x512',type:'image/png',purpose:'any maskable'}]
+};
+$('pwa-manifest').href = URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'}));
+
+const SW = `const C='cardio-define-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(['./'])).then(()=>self.skipWaiting())));self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>caches.match(e.request))));`;
+if ('serviceWorker' in navigator) navigator.serviceWorker.register(URL.createObjectURL(new Blob([SW],{type:'application/javascript'}))).catch(()=>{});
+</script>
+</body>
+</html>
